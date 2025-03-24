@@ -1,6 +1,6 @@
 from django.http import Http404
 
-from .serializers import PessoaSerializer
+from .serializers import PessoaSerializer, PessoaComPesoIdealSerializer
 from .tasks import Task
 
 class Service:
@@ -26,7 +26,7 @@ class Service:
             pessoa = Task.retrieve_one(pessoa_id)
             serializer = PessoaSerializer(pessoa, data=data)
             if serializer.is_valid():
-                pessoa_atualizada = Task.update(pessoa, update_data)
+                pessoa_atualizada = Task.update(pessoa, data)
                 novo_serializer = PessoaSerializer(pessoa_atualizada)
                 return novo_serializer.data
             else:
@@ -69,12 +69,9 @@ class Service:
                 peso_ideal = (62.1 * altura) - 44.7
             
             peso_ideal = round(peso_ideal, 2)
-            
-            return {
-                **pessoa,
-                'peso_ideal': peso_ideal,
-                'unidade': 'kg'
-            }
+            pessoa.peso_ideal = peso_ideal
+
+            return PessoaComPesoIdealSerializer(pessoa).data
             
         except Http404:
             return {'error': 'Pessoa não encontrada'}

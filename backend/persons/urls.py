@@ -3,7 +3,8 @@ from django.views.generic import RedirectView
 from drf_spectacular.views import (SpectacularAPIView, SpectacularRedocView,
                                    SpectacularSwaggerView)
 
-from .views import PessoaDetailView, PessoaListCreateView
+from .views import (CalcularPesoIdealView, PessoaDetailView,
+                    PessoaListCreateView)
 
 #  Swagger e Redoc
 urlpatterns = [
@@ -17,4 +18,5 @@ urlpatterns = [
 urlpatterns = [
     path('pessoas/', PessoaListCreateView.as_view(), name='pessoas-list'),
     path('pessoas/<int:id>/', PessoaDetailView.as_view(), name='pessoa-detail'),
+    path('pessoas/<int:id>/calcular/', CalcularPesoIdealView.as_view(), name='calcular-peso'),
 ]

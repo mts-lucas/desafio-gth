@@ -73,3 +73,14 @@ class PessoaDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         return Response(result, status=status.HTTP_200_OK)
+    
+
+class CalcularPesoIdealView(APIView):
+    def get(self, request, pessoa_id):
+        try:
+            result = Service.calcular_peso_ideal(pessoa_id)
+            if 'error' in result:
+                return Response(result, status=status.HTTP_404_NOT_FOUND)
+            return Response(result)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
