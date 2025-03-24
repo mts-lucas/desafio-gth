@@ -3,7 +3,6 @@ from django.http import Http404
 from .serializers import PessoaSerializer
 from .tasks import Task
 
-
 class Service:
 
     @staticmethod
@@ -56,4 +55,26 @@ class Service:
         else:
             return {'error': serializer.errors}
 
-    
+
+    @staticmethod
+    def calcular_peso_ideal(pessoa_id):
+        try:
+            pessoa = Task.retrieve_one(pessoa_id)      
+            altura = pessoa.altura
+            sexo = pessoa.sexo
+            
+            if sexo == "M":
+                peso_ideal = (72.7 * altura) - 58
+            elif sexo == "F":
+                peso_ideal = (62.1 * altura) - 44.7
+            
+            peso_ideal = round(peso_ideal, 2)
+            
+            return {
+                **pessoa,
+                'peso_ideal': peso_ideal,
+                'unidade': 'kg'
+            }
+            
+        except Http404:
+            return {'error': 'Pessoa não encontrada'}
