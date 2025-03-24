@@ -50,8 +50,9 @@ class Service:
     def create(pessoa_data):
         serializer = PessoaSerializer(data=pessoa_data)
         if serializer.is_valid():
-            pessoa = Task.create(pessoa_data)
-            return serializer.data
+            nova_pessoa = Task.create(pessoa_data)
+            novo_serializer = PessoaSerializer(data=nova_pessoa)
+            return novo_serializer.data
         else:
             return {'error': serializer.errors}
 
