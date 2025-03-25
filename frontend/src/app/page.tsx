@@ -5,11 +5,13 @@ import api from "@/app/services/api";
 import type Pessoa from "@/app/types/person";
 import ModalEdicao from "@/app/components/ModalEdicao";
 import Head from 'next/head';
+import ModalCriarPessoa from "@/app/components/ModalCriarPessoa";
 
 export default function Home() {
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [pessoaEditando, setPessoaEditando] = useState<Pessoa | null>(null);
+  const [mostrarModalCriar, setMostrarModalCriar] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
 
@@ -26,6 +28,11 @@ export default function Home() {
     } finally {
       setCarregando(false);
     }
+  };
+
+  const handlePessoaCriada = (novaPessoa: Pessoa) => {
+    setPessoas([...pessoas, novaPessoa]);
+    setMostrarModalCriar(false);
   };
 
   // Pesquisar por nome
@@ -114,10 +121,16 @@ export default function Home() {
           </button>
           <button
             onClick={listarTodas}
-            className="bg-green-500 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition"
+            className="bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 rounded-lg transition"
           >
             Listar Todas
           </button>
+          <button
+          onClick={() => setMostrarModalCriar(true)}
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg transition"
+        >
+          Criar Novo
+        </button>
         </div>
 
         {erro && (
@@ -162,7 +175,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Mensagem quando não há pessoas */}
         {!carregando && pessoas.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             Nenhuma pessoa cadastrada encontrada
@@ -170,7 +182,14 @@ export default function Home() {
         )}
       </div>
 
-      {/* Modal de edição */}
+
+      {mostrarModalCriar && (
+        <ModalCriarPessoa
+          onClose={() => setMostrarModalCriar(false)}
+          onPessoaCriada={handlePessoaCriada}
+        />
+      )}
+
       {pessoaEditando && (
         <ModalEdicao
           pessoa={pessoaEditando}
