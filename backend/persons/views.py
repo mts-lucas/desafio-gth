@@ -1,11 +1,15 @@
 from django.http import Http404
 from django_filters import rest_framework as filters
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
+                                   extend_schema)
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .filters import PessoaFilter
+from .serializers import PessoaComPesoIdealSerializer, PessoaSerializer
 from .services import Service
 
 
@@ -14,14 +18,45 @@ class PessoaListCreateView(APIView):
     pagination_class = LimitOffsetPagination
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = PessoaFilter
-    
+
+
+    @extend_schema(
+        description="Lista todas as pessoas e aplica algum filtro caso pedido",
+        parameters=[
+            OpenApiParameter(name='nome', description='Filtrar por nome', required=False, type=str),
+            OpenApiParameter(name='idade', description='Filtrar por idade', required=False, type=int),
+        ],
+        responses={
+            200: PessoaSerializer(many=True),
+            400: OpenApiTypes.OBJECT
+        }
+    )
     def get(self, request):
         """
         Lista todas as pessoas e aplica algum filtro caso pedido
         """
         pessoas_data = Service.search(request.query_params)
         return Response(pessoas_data, status=status.HTTP_200_OK)
-
+    
+    @extend_schema(
+        description="Cria uma nova pessoa na base de dados",
+        request=PessoaSerializer,
+        responses={
+            201: PessoaSerializer,
+            400: OpenApiTypes.OBJECT
+        },
+        examples=[
+            OpenApiExample(
+                'Exemplo de criação',
+                value={
+                    'nome': 'João Silva',
+                    'idade': 30,
+                    'altura': 1.75,
+                    'sexo': 'M'
+                }
+            )
+        ]
+    )
     def post(self, request):
         """
         Cria uma nova pessoa na base de dados
@@ -35,6 +70,13 @@ class PessoaListCreateView(APIView):
 
 class PessoaDetailView(APIView):
 
+    @extend_schema(
+        description="Busca e retorna uma pessoa específica pelo ID",
+        responses={
+            200: PessoaSerializer,
+            404: OpenApiTypes.OBJECT
+        }
+    )
     def get(self, request, pessoa_id):
         """
         Busca e retorna uma instancia unica da pessoa pelo id
@@ -48,6 +90,15 @@ class PessoaDetailView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+    @extend_schema(
+        description="Edita os dados de uma instancia unica da pessoa pelo id",
+        request=PessoaSerializer,
+        responses={
+            200: PessoaSerializer,
+            400: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT
+        }
+    )
     def put(self, request, pessoa_id):
         """
         Edita os dados de uma instancia unica da pessoa pelo id
@@ -62,6 +113,14 @@ class PessoaDetailView(APIView):
             )
         return Response(result, status=status.HTTP_200_OK)
 
+
+    @extend_schema(
+        description="Deleta a instancia de pessoa de acordo com o ID informado",
+        responses={
+            200: OpenApiTypes.OBJECT,
+            404: OpenApiTypes.OBJECT
+        }
+    )
     def delete(self, request, pessoa_id):
         """
         Deleta a instancia de pessoa de acordo com o ID informado
@@ -76,9 +135,18 @@ class PessoaDetailView(APIView):
     
 
 class CalcularPesoIdealView(APIView):
-    def get(self, request, pessoa_id):
+
+    @extend_schema(
+        description="Calcula o peso ideal para uma pessoa baseado em sua altura e sexo",
+        responses={
+            200: PessoaComPesoIdealSerializer,
+            404: OpenApiTypes.OBJECT,
+            500: OpenApiTypes.OBJECT
+        },
+    )
+    def get(self, request, id):
         try:
-            result = Service.calcular_peso_ideal(pessoa_id)
+            result = Service.calcular_peso_ideal(id)
             if 'error' in result:
                 return Response(result, status=status.HTTP_404_NOT_FOUND)
             return Response(result)

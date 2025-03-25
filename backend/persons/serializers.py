@@ -10,5 +10,5 @@ class PessoaComPesoIdealSerializer(PessoaSerializer):
     peso_ideal = serializers.DecimalField(max_digits=5, decimal_places=2, required=False)
     
     class Meta(PessoaSerializer.Meta):
-        fields = PessoaSerializer.Meta.fields + ('peso_ideal',)
+        fields = ['id', 'nome', 'altura', 'sexo', 'peso_ideal']
 
