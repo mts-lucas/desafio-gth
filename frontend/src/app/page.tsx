@@ -6,16 +6,18 @@ import type Pessoa from "@/app/types/person";
 import ModalEdicao from "@/app/components/ModalEdicao";
 import Head from 'next/head';
 import ModalCriarPessoa from "@/app/components/ModalCriarPessoa";
+import ModalPesoIdeal from '@/app/components/ModalPesoIdeal';
 
 export default function Home() {
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [pessoaEditando, setPessoaEditando] = useState<Pessoa | null>(null);
   const [mostrarModalCriar, setMostrarModalCriar] = useState(false);
+  const [mostrarModalPesoIdeal, setMostrarModalPesoIdeal] = useState(false);
+  const [pessoaParaCalculo, setPessoaParaCalculo] = useState<Pessoa | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
 
-  // Listar todas as pessoas
   const listarTodas = async () => {
     try {
       setCarregando(true);
@@ -35,7 +37,6 @@ export default function Home() {
     setMostrarModalCriar(false);
   };
 
-  // Pesquisar por nome
   const pesquisarPorNome = async () => {
     if (!termoPesquisa.trim()) return;
     
@@ -52,7 +53,6 @@ export default function Home() {
     }
   };
 
-  // Deletar pessoa
   const deletarPessoa = async (id: number) => {
     if (!confirm('Tem certeza que deseja excluir esta pessoa?')) return;
     
@@ -65,13 +65,11 @@ export default function Home() {
     }
   };
 
-  // Atualizar lista após edição
   const handlePessoaAtualizada = (pessoaAtualizada: Pessoa) => {
     setPessoas(pessoas.map(p => p.id === pessoaAtualizada.id ? pessoaAtualizada : p));
     setPessoaEditando(null);
   };
 
-  // Carregar todas as pessoas ao iniciar
   useEffect(() => {
     listarTodas();
   }, []);
@@ -158,6 +156,15 @@ export default function Home() {
                 </div>
                 <div className="mt-4 flex justify-end space-x-2">
                   <button
+                    onClick={() => {
+                      setPessoaParaCalculo(pessoa);
+                      setMostrarModalPesoIdeal(true);
+                    }}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded transition"
+                  >
+                    Peso Ideal
+                  </button>
+                  <button
                     onClick={() => setPessoaEditando(pessoa)}
                     className="bg-blue-600 hover:bg-blue-900 text-white px-4 py-2 rounded transition"
                   >
@@ -197,6 +204,17 @@ export default function Home() {
           onSave={handlePessoaAtualizada}
         />
       )}
+
+      {mostrarModalPesoIdeal && pessoaParaCalculo && (
+        <ModalPesoIdeal
+          pessoa={pessoaParaCalculo}
+          onClose={() => {
+            setMostrarModalPesoIdeal(false);
+            setPessoaParaCalculo(null);
+          }}
+        />
+      )}
     </div>
+    
   );
 }
