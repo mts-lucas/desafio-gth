@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/venv,dotenv,python,visualstudiocode,django
-# Edit at https://www.toptal.com/developers/gitignore?templates=venv,dotenv,python,visualstudiocode,django
+# Created by https://www.toptal.com/developers/gitignore/api/python,django,visualstudiocode,venv,dotenv,nextjs,react
+# Edit at https://www.toptal.com/developers/gitignore?templates=python,django,visualstudiocode,venv,dotenv,nextjs,react
 
 ### Django ###
 *.log
@@ -173,6 +173,42 @@ cython_debug/
 
 ### dotenv ###
 
+### NextJS ###
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# local env files
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 
@@ -265,6 +301,21 @@ poetry.toml
 # LSP config files
 pyrightconfig.json
 
+### react ###
+.DS_*
+logs
+**/*.backup.*
+**/*.back.*
+
+node_modules
+bower_components
+
+*.sublime*
+
+psd
+thumb
+sketch
+
 ### venv ###
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
@@ -296,4 +347,4 @@ pip-selfcheck.json
 .history
 .ionide
 
-# End of https://www.toptal.com/developers/gitignore/api/venv,dotenv,python,visualstudiocode,django
+# End of https://www.toptal.com/developers/gitignore/api/python,django,visualstudiocode,venv,dotenv,nextjs,react
