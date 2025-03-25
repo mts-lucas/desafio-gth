@@ -1,30 +1,22 @@
 from django.http import Http404
-from django_filters import rest_framework as filters
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import (OpenApiExample, OpenApiParameter,
+from drf_spectacular.utils import (OpenApiParameter,
                                    extend_schema)
 from rest_framework import status
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .filters import PessoaFilter
 from .serializers import PessoaComPesoIdealSerializer, PessoaSerializer
 from .services import Service
 
 
 class PessoaListCreateView(APIView):
 
-    pagination_class = LimitOffsetPagination
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = PessoaFilter
-
 
     @extend_schema(
         description="Lista todas as pessoas e aplica algum filtro caso pedido",
         parameters=[
             OpenApiParameter(name='nome', description='Filtrar por nome', required=False, type=str),
-            OpenApiParameter(name='idade', description='Filtrar por idade', required=False, type=int),
         ],
         responses={
             200: PessoaSerializer(many=True),
@@ -35,7 +27,8 @@ class PessoaListCreateView(APIView):
         """
         Lista todas as pessoas e aplica algum filtro caso pedido
         """
-        pessoas_data = Service.search(request.query_params)
+        nome_filtro = request.query_params.get('nome', None)
+        pessoas_data = Service.search(nome_filtro)
         return Response(pessoas_data, status=status.HTTP_200_OK)
     
     @extend_schema(
@@ -45,17 +38,6 @@ class PessoaListCreateView(APIView):
             201: PessoaSerializer,
             400: OpenApiTypes.OBJECT
         },
-        examples=[
-            OpenApiExample(
-                'Exemplo de criação',
-                value={
-                    'nome': 'João Silva',
-                    'idade': 30,
-                    'altura': 1.75,
-                    'sexo': 'M'
-                }
-            )
-        ]
     )
     def post(self, request):
         """
@@ -77,12 +59,12 @@ class PessoaDetailView(APIView):
             404: OpenApiTypes.OBJECT
         }
     )
-    def get(self, request, pessoa_id):
+    def get(self, request, id):
         """
         Busca e retorna uma instancia unica da pessoa pelo id
         """
         try:
-            pessoa_data = Service.get_by_id(pessoa_id)
+            pessoa_data = Service.get_by_id(id)
             return Response(pessoa_data, status=status.HTTP_200_OK)
         except Http404:
             return Response(
@@ -99,11 +81,11 @@ class PessoaDetailView(APIView):
             404: OpenApiTypes.OBJECT
         }
     )
-    def put(self, request, pessoa_id):
+    def patch(self, request, id):
         """
         Edita os dados de uma instancia unica da pessoa pelo id
         """
-        result = Service.update(pessoa_id, request.data)
+        result = Service.update(id, request.data)
         if isinstance(result, dict) and 'error' in result:
             return Response(result, status=status.HTTP_400_BAD_REQUEST)
         elif result == Http404:
@@ -121,11 +103,11 @@ class PessoaDetailView(APIView):
             404: OpenApiTypes.OBJECT
         }
     )
-    def delete(self, request, pessoa_id):
+    def delete(self, request, id):
         """
         Deleta a instancia de pessoa de acordo com o ID informado
         """
-        result = Service.exclude(pessoa_id)
+        result = Service.exclude(id)
         if result == Http404:
             return Response(
                 {"error": "Pessoa não encontrada"},

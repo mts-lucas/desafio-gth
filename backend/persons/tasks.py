@@ -17,7 +17,7 @@ class Task:
     
     def retrieve_all(filters):
         if filters:
-            pessoas = Pessoa.objects.filter(**filters)
+            pessoas = Pessoa.objects.filter(nome__icontains=filters)
         else:
             pessoas = Pessoa.objects.all()
 
