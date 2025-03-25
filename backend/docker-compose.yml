@@ -1,0 +1,22 @@
+services:
+  web:
+    container_name: backend-desafio
+    image: desafio:latest
+    build: .
+    command: >
+      sh -c  "python manage.py migrate --noinput
+              python manage.py populatedb
+              gunicorn --bind 0.0.0.0:8000 backend.wsgi:application"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    restart: no
+    env_file:
+      - .env
+
+
+networks:
+  default:
+    external: true
+    name: desafio-network
